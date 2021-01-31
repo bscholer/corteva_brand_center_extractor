@@ -1,4 +1,3 @@
-
 let countries = [];
 $.ajax("https://gist.githubusercontent.com/marijn/396531/raw/188caa065e3cd319fed7913ee3eecf5eec541918/countries.csv").done((data) => {
     let preCountries = Papa.parse(data);
@@ -22,6 +21,7 @@ $("#download-results-button").on('click', () => {
 let count = 0;
 
 var data = [];
+
 function run() {
     let resultsRegex = /(\d+)-(\d+) of (\d+)/
     let totalResults = $(".total_results>.summary")[0].innerText;
@@ -69,57 +69,71 @@ function run() {
                 data.push(prevInfo);
                 // Click next page button
                 let moveToNext = () => {
-                    if (!$(".image-next-trigger>a").length) {
-                        return;
-                    }
-                    $(".image-next-trigger>a")[0].click();
-                    // Wait for it to be different
-                    var checkDifferent = setInterval(function () {
-                        let curInfo = collectInfo()
-                        // console.log([prevInfo]);
-                        if (!(curInfo.title === prevInfo.title && curInfo.usage === prevInfo.usage)) {
-                            prevInfo = collectInfo();
+                    let nextCount = 0;
+                    let allDone = false;
+                    var checkForNextButton = setInterval(function () {
+                        nextCount++;
+                        if ($(".image-next-trigger>a").length) {
+                            $(".image-next-trigger>a")[0].click();
+                            clearInterval(checkForNextButton);
 
-                            // Don't add duplicates
-                            let isDuplicate = false;
-                            for (let dataPoint of data) {
-                                if (prevInfo.title === dataPoint.title) isDuplicate = true;
-                            }
-                            if (!isDuplicate) {
-                                data.push(prevInfo);
-                            }
+                            // Wait for it to be different
+                            var checkDifferent = setInterval(function () {
+                                let curInfo = collectInfo()
+                                // console.log([prevInfo]);
+                                if (!(curInfo.title === prevInfo.title && curInfo.usage === prevInfo.usage)) {
+                                    prevInfo = collectInfo();
 
-                            console.log(data);
-                            if (count !== (endIndex - beginIndex + 1)) {
-                                count++;
-                                console.log(count + "/" + totalItems + " collected.");
-                                moveToNext();
-                            }
-                            // We're all done, go to the next page
-                            if (count + "" === endIndex || !$(".image-next-trigger>a").length) {
-                                let csv = Papa.unparse(data);
-                                let title = $(".content>.main_title")[0].innerText;
-                                download(`PARTIAL_${title}_${beginIndex}_to_${endIndex}_of_${totalItems}.csv`, csv);
-                                if (totalItems === endIndex) {
-                                    let csv = Papa.unparse(data);
-                                    let title = $(".content>.main_title")[0].innerText;
-                                    download(`FINAL_${title}_${totalItems}_items.csv`, csv);
-                                } else {
-                                    $(".ui-icon-closethick")[0].click();
-                                    $(".bottom.pager").find(".next>a")[0].click();
-                                    var waitForNextPage = setInterval(() => {
-                                        if (!$(".advf_loading.active").length) {
-                                            console.log("Loader is gone");
-                                            // Gotta get rid of the old rows because for some reason they aren't removed on their own...
-                                            $("table.info_2>tbody").empty();
-                                            run();
-                                            clearInterval(waitForNextPage);
+                                    // Don't add duplicates
+                                    let isDuplicate = false;
+                                    for (let dataPoint of data) {
+                                        if (prevInfo.title === dataPoint.title && dataPoint.tags === prevInfo.tags) isDuplicate = true;
+                                    }
+                                    if (!isDuplicate) {
+                                        data.push(prevInfo);
+                                    }
+
+                                    console.log(data);
+                                    if (count !== (endIndex - beginIndex + 1)) {
+                                        count++;
+                                        console.log(count + "/" + totalItems + " collected.");
+                                        moveToNext();
+                                    }
+                                    // We're all done, go to the next page
+                                    if (count + "" === endIndex || allDone) {
+                                        let csv = Papa.unparse(data);
+                                        let title = $(".content>.main_title")[0].innerText;
+                                        download(`PARTIAL_${title}_${beginIndex}_to_${endIndex}_of_${totalItems}.csv`, csv);
+                                        if (totalItems === endIndex) {
+                                            let csv = Papa.unparse(data);
+                                            let title = $(".content>.main_title")[0].innerText;
+                                            download(`FINAL_${title}_${data.length}_items.csv`, csv);
+                                        } else {
+                                            $(".ui-icon-closethick")[0].click();
+                                            $(".bottom.pager").find(".next>a")[0].click();
+                                            var waitForNextPage = setInterval(() => {
+                                                if (!$(".advf_loading.active").length) {
+                                                    console.log("Loader is gone");
+                                                    // Gotta get rid of the old rows because for some reason they aren't removed on their own...
+                                                    $("table.info_2>tbody").empty();
+                                                    run();
+                                                    clearInterval(waitForNextPage);
+                                                }
+                                            }, 100)
                                         }
-                                    }, 100)
+                                    }
+                                    clearInterval(checkDifferent);
                                 }
-                            }
-                            clearInterval(checkDifferent);
+                            }, 100)
                         }
+                        // Wait 10 seconds before we call it done
+                        if (nextCount >= 100) {
+                            allDone = true;
+                        }
+                        // if (!$(".image-next-trigger>a").length) {
+                        //     return;
+                        // }
+
                     }, 100)
                 }
                 moveToNext();

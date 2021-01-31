@@ -1,4 +1,3 @@
-
 let countries = [];
 $.ajax("https://gist.githubusercontent.com/marijn/396531/raw/188caa065e3cd319fed7913ee3eecf5eec541918/countries.csv").done((data) => {
     let preCountries = Papa.parse(data);
@@ -22,6 +21,7 @@ $("#download-results-button").on('click', () => {
 let count = 0;
 
 var data = [];
+
 function run() {
     let resultsRegex = /(\d+)-(\d+) of (\d+)/
     let totalResults = $(".total_results>.summary")[0].innerText;
@@ -74,7 +74,14 @@ function run() {
                     }
                     $(".image-next-trigger>a")[0].click();
                     // Wait for it to be different
+                    let checkDifferentCounter = 0;
                     var checkDifferent = setInterval(function () {
+                        checkDifferentCounter++;
+                        // Wait for 10 seconds before pressing the next button again.
+                        if (checkDifferentCounter === 100) {
+                            checkDifferentCounter = 0;
+                            $(".image-next-trigger>a")[0].click();
+                        }
                         let curInfo = collectInfo()
                         // console.log([prevInfo]);
                         if (!(curInfo.title === prevInfo.title && curInfo.usage === prevInfo.usage)) {
@@ -100,13 +107,14 @@ function run() {
                                 let csv = Papa.unparse(data);
                                 let title = $(".content>.main_title")[0].innerText;
                                 download(`PARTIAL_${title}_${beginIndex}_to_${endIndex}_of_${totalItems}.csv`, csv);
-                                if (totalItems === endIndex) {
+                                if ($(".bottom.pager").find(".selected").next().length === 0) {
                                     let csv = Papa.unparse(data);
                                     let title = $(".content>.main_title")[0].innerText;
                                     download(`FINAL_${title}_${totalItems}_items.csv`, csv);
                                 } else {
                                     $(".ui-icon-closethick")[0].click();
-                                    $(".bottom.pager").find(".next>a")[0].click();
+                                    // $(".bottom.pager").find(".next>a")[0].click();
+                                    $(".bottom.pager").find(".selected").next()[0].click();
                                     var waitForNextPage = setInterval(() => {
                                         if (!$(".advf_loading.active").length) {
                                             console.log("Loader is gone");

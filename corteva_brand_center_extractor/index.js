@@ -1,7 +1,7 @@
 var productTypes = ["Fungicide", "Herbicide", "Insecticide", "Nematicide", "Nitrogen Stabilizer", "Seed Treatment"];
 
 let countries = [];
-$.ajax("https://gist.githubusercontent.com/marijn/396531/raw/188caa065e3cd319fed7913ee3eecf5eec541918/countries.csv").done((data) => {
+$.ajax("https://gist.githubusercontent.com/bscholer/2c859ae7d2e1b27d8440f32064f97aba/raw/a2c80801425e359d3d4baf1535de676cfc142797/countries.csv").done((data) => {
     let preCountries = Papa.parse(data);
     preCountries = preCountries.data[0];
     for (let country of preCountries) {
@@ -124,9 +124,9 @@ function run() {
 
                             console.log("Have " + data.length + " logos.");
                             // console.log(data);
+                            count++;
+                            console.log(count + "/" + totalItems + " collected.");
                             if (count !== (endIndex - beginIndex + 1)) {
-                                count++;
-                                console.log(count + "/" + totalItems + " collected.");
                                 moveToNext();
                             }
 

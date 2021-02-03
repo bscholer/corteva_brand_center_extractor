@@ -1,6 +1,6 @@
 {
   "name": "Corteva Brand Center Extractor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "description": "A Chrome extension to scrape data from Corteva's brand center and export it to a CSV.",
   "author": "Ben Scholer",

@@ -1,0 +1,7 @@
+{
+  "name": "corteva_brand_center_fixer",
+  "version": "1.0.0",
+  "dependencies": {
+    "papaparse": "^5.3.0"
+  }
+}

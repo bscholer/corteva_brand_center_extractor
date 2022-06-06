@@ -1,0 +1,7 @@
+"U.S."->"United States"
+"US"->"United States"
+"U.K."->"United Kingdom"
+"UK"->"United Kingdom"
+"Polska"->"Poland"
+"México"->"Mexico"
+"Deutschland"->"Germany"
